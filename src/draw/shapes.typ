@@ -649,15 +649,15 @@
       transform: ctx.transform,
     )
 
-    // Place marks and adjust points
-    let (marks, pts) = if style.mark != none {
-      mark_.place-marks-along-line(ctx, pts, style.mark)
+    // Place marks and adjust segments
+    let (marks, segments) = if style.mark.start != none or style.mark.end != none {
+      mark_.place-marks-along-path(ctx, style.mark, (path-util.line-segment(pts),))
     } else {
-      (none, pts)
+      (none, (path-util.line-segment(pts),))
     }
 
     let drawables = (drawable.path(
-      (path-util.line-segment(pts),),
+      segments,
       fill: style.fill,
       stroke: style.stroke,
       close: close,

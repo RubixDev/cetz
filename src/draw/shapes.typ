@@ -272,14 +272,6 @@
     let (ctx, arc-start) = coordinate.resolve(ctx, position)
     let (rx, ry) = util.resolve-radius(style.radius).map(util.resolve-number.with(ctx))
 
-    // Calculate marks and optimized angles
-    // let (marks, draw-arc-start, draw-start-angle, draw-stop-angle) = if style.mark != none {
-    //   mark_.place-marks-along-arc(ctx, start-angle, stop-angle,
-    //     arc-start, rx, ry, style, style.mark)
-    // } else {
-    //   (none, arc-start, start-angle, stop-angle)
-    // }
-
     let (x, y, z) = arc-start
     let drawables = (drawable.arc(
       ..arc-start,
@@ -292,14 +284,11 @@
       mode: style.mode,
     ),)
 
-    
-    if style.mark != none {
-      let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.first().segments)
-      drawables.first().segments = segments
-      drawables += marks
+    if mark_.check-mark(style.mark) {
+      let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.segments)
+      drawables.segments = segments
+      drawables = (drawables,) + marks
     }
-
-
 
     let sector-center = (
       x - rx * calc.cos(start-angle),
@@ -652,22 +641,17 @@
       transform: ctx.transform,
     )
 
-    // Place marks and adjust segments
-    let (marks, segments) = if style.mark.start != none or style.mark.end != none {
-      mark_.place-marks-along-path(ctx, style.mark, (path-util.line-segment(pts),))
-    } else {
-      (none, (path-util.line-segment(pts),))
-    }
-
-    let drawables = (drawable.path(
-      segments,
+    let drawables = drawable.path(
+      (path-util.line-segment(pts),),
       fill: style.fill,
       stroke: style.stroke,
       close: close,
-    ),)
+    )
 
-    if marks != none {
-      drawables += marks
+    if mark_.check-mark(style.mark) {
+      let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.segments)
+      drawables.segments = segments
+      drawables = (drawables,) + marks
     }
 
     return (
@@ -1286,21 +1270,16 @@
 
       let style = styles.resolve(ctx.style, merge: style, root: "bezier")
 
-      let segments = (path-util.cubic-segment(start, end, ..ctrl),)
-      let (marks, segments) = if style.mark != none {
-        mark_.place-marks-along-path(ctx, style.mark, segments)
-      } else {
-        (none, segments)
-      }
-
       let drawables = (drawable.path(
-        segments,
+        (path-util.cubic-segment(start, end, ..ctrl),),
         fill: style.fill,
         stroke: style.stroke,
       ),)
 
-      if marks != none {
-        drawables += marks
+      if mark_.check-mark(style.mark) {
+        let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.segments)
+        drawables.segments = segments
+        drawables = (drawables,) + marks
       }
 
       return (
@@ -1398,29 +1377,24 @@
     }
 
     let style = styles.resolve(ctx.style, merge: style, root: "catmull")
-    let segments = bezier_.catmull-to-cubic(
-      pts,
-      style.tension,
-      close: close
-    ).map(c => path-util.cubic-segment(..c))
-
-
-    let (marks, segments) = if style.mark != none {
-      mark_.place-marks-along-path(ctx, style.mark, segments)
-    } else {
-      (none, segments)
-    }
 
     let drawables = (
       drawable.path(
-        segments,
+        bezier_.catmull-to-cubic(
+          pts,
+          style.tension,
+          close: close
+        ).map(c => path-util.cubic-segment(..c)),
         fill: style.fill,
         stroke: style.stroke,
         close: close
       ),
     )
-    if marks != none {
-      drawables += marks
+
+    if mark_.check-mark(style.mark) {
+      let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.segments)
+      drawables.segments = segments
+      drawables = (drawables,) + marks
     }
 
     return (
@@ -1491,31 +1465,26 @@
     }
 
     let style = styles.resolve(ctx.style, merge: style, root: "hobby")
-    let segments = hobby_.hobby-to-cubic(
-      pts,
-      ta: ta,
-      tb: tb,
-      omega: style.omega,
-      rho: style.rho,
-      close: close
-    ).map(c => path-util.cubic-segment(..c))
-
-    let (marks, segments) = if style.mark != none {
-      mark_.place-marks-along-path(ctx, style.mark, segments)
-    } else {
-      (none, segments)
-    }
 
     let drawables = (
       drawable.path(
-        segments,
+        hobby_.hobby-to-cubic(
+          pts,
+          ta: ta,
+          tb: tb,
+          omega: style.omega,
+          rho: style.rho,
+          close: close
+        ).map(c => path-util.cubic-segment(..c)),
         fill: style.fill,
         stroke: style.stroke,
         close: close
       ),
     )
-    if marks != none {
-      drawables += marks
+    if mark_.check-mark(style.mark) {
+      let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.segments)
+      drawables.segments = segments
+      drawables = (drawables,) + marks
     }
 
     return (

@@ -273,7 +273,7 @@
     let (rx, ry) = util.resolve-radius(style.radius).map(util.resolve-number.with(ctx))
 
     let (x, y, z) = arc-start
-    let drawables = (drawable.arc(
+    let drawables = drawable.arc(
       ..arc-start,
       start-angle,
       stop-angle,
@@ -281,8 +281,7 @@
       ry,
       stroke: style.stroke,
       fill: style.fill,
-      mode: style.mode,
-    ),)
+      mode: style.mode)
 
     if mark_.check-mark(style.mark) {
       let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.segments)
@@ -1274,11 +1273,10 @@
 
       let style = styles.resolve(ctx.style, merge: style, root: "bezier")
 
-      let drawables = (drawable.path(
+      let drawables = drawable.path(
         (path-util.cubic-segment(start, end, ..ctrl),),
         fill: style.fill,
-        stroke: style.stroke,
-      ),)
+        stroke: style.stroke)
 
       if mark_.check-mark(style.mark) {
         let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.segments)
@@ -1382,18 +1380,15 @@
 
     let style = styles.resolve(ctx.style, merge: style, root: "catmull")
 
-    let drawables = (
-      drawable.path(
-        bezier_.catmull-to-cubic(
-          pts,
-          style.tension,
-          close: close
-        ).map(c => path-util.cubic-segment(..c)),
-        fill: style.fill,
-        stroke: style.stroke,
+    let drawables = drawable.path(
+      bezier_.catmull-to-cubic(
+        pts,
+        style.tension,
         close: close
-      ),
-    )
+      ).map(c => path-util.cubic-segment(..c)),
+      fill: style.fill,
+      stroke: style.stroke,
+      close: close)
 
     if mark_.check-mark(style.mark) {
       let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.segments)
@@ -1470,21 +1465,19 @@
 
     let style = styles.resolve(ctx.style, merge: style, root: "hobby")
 
-    let drawables = (
-      drawable.path(
-        hobby_.hobby-to-cubic(
-          pts,
-          ta: ta,
-          tb: tb,
-          omega: style.omega,
-          rho: style.rho,
-          close: close
-        ).map(c => path-util.cubic-segment(..c)),
-        fill: style.fill,
-        stroke: style.stroke,
+    let drawables = drawable.path(
+      hobby_.hobby-to-cubic(
+        pts,
+        ta: ta,
+        tb: tb,
+        omega: style.omega,
+        rho: style.rho,
         close: close
-      ),
-    )
+      ).map(c => path-util.cubic-segment(..c)),
+      fill: style.fill,
+      stroke: style.stroke,
+      close: close)
+
     if mark_.check-mark(style.mark) {
       let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.segments)
       drawables.segments = segments

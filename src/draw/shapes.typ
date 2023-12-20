@@ -273,7 +273,7 @@
     let (rx, ry) = util.resolve-radius(style.radius).map(util.resolve-number.with(ctx))
 
     let (x, y, z) = arc-start
-    let drawables = drawable.arc(
+    let drawables = (drawable.arc(
       ..arc-start,
       start-angle,
       stop-angle,
@@ -281,12 +281,12 @@
       ry,
       stroke: style.stroke,
       fill: style.fill,
-      mode: style.mode)
+      mode: style.mode),)
 
     if mark_.check-mark(style.mark) {
-      let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.segments)
+      let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.first().segments)
       drawables.segments = segments
-      drawables = (drawables,) + marks
+      drawables = drawables + marks
     }
 
     let sector-center = (

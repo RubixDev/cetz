@@ -285,7 +285,7 @@
 
     if mark_.check-mark(style.mark) {
       let (marks, segments) = mark_.place-marks-along-path(ctx, style.mark, drawables.first().segments)
-      drawables.segments = segments
+      drawables.first().segments = segments
       drawables = drawables + marks
     }
 
